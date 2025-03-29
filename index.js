@@ -1,20 +1,28 @@
-const mypromise = new Promise(function(resolve, reject){
-    setTimeout(function(){
-        const myvar = true
-        if(myvar){
-            resolve("operation good")
-        }
-        else{
-            reject("operation error")
-        }
-    })
-}, 2000)
+const mongoose = require('mongoose')
+const schema = mongoose.schema
 
-mypromise.then(function(result){
-    console.log(result)
-}).catch(function(error){
-    console.log(error)
-}).finally(function(){
-    console.log("this block will always execute")
+const myschema = new schema({
+    name: String,
+    email: String,
+    lastupdated: Date
 })
 
+myschema.pre('save', function(next){
+    this.lastupdated = new Date()
+    console.log("prep to save.....brrr....")
+    next();
+})
+
+myschema.post('save', function(doc, next){
+    console.log(`user ${doc.name} was saved at ${doc.lastupdated}`)
+    next();
+})
+
+const user = mongoose.model('user', myschema)
+
+const currentuser = new user({
+    name: "jagmohan sharma",
+    email: "jms21082003@gmail.com"
+})
+
+currentuser.save()
